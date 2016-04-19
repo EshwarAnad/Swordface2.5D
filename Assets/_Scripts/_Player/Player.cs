@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     public float maxJumpHeight = 3.5f;//3.5f;
     public float minJumpHeight = 1.0f;//1.0f;
     public float timeToJumpApex = 0.4f;//.4f;
+	public int airJumpsAllowed = 1; // set to 0 if can only jump when on ground.
+	int currentAirJumpCount;
 
     public int jumpCounter = 0;
     public int baseNumberOfJumps = 0;
@@ -128,9 +130,15 @@ public class Player : MonoBehaviour
             }
             // No longer wall sliding here
 
-            if (controller.collisions.below) // Regular jump.
+			if (controller.collisions.below || currentAirJumpCount < airJumpsAllowed) // Regular jump.
             {
                 velocity.y = maxJumpVelocity;
+
+				if (!controller.collisions.below) {
+					currentAirJumpCount++;
+				} else {
+					currentAirJumpCount = 0;
+				}
             }
 
         } // END OF Jumping code + wall jump.
@@ -155,6 +163,16 @@ public class Player : MonoBehaviour
         {
             velocity.y = 0;
         }
+
+
+		if (input.x != 0) {
+			transform.localScale = new Vector3 (Mathf.Sign(input.x), 1, 1);
+		}
+
+		//NOTE: using controller.facing instead of sign(input.x) will result in player flipping dir while walljumping
+		// If this is desirable behaviour, use the following line instead:
+		//transform.localScale = new Vector3 (controller.facing, 1, 1);
+
 
     } // END OF Update() METHOD
 
